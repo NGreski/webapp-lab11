@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lab 6 add expenses</title>
+    <link rel="stylesheet" type="text/css" href="lab6.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body> 
+    <nav>
+        <div class="nav-bar">Expenses</div>
+        <ul class="home-ul">
+          <li><a href="invoices.html">Invoices</a></li>
+          <li><a href="chart.html">Chart</a></li>
+          <li><a href="incomesource.html">Income Source</a></li>
+          <li><a href="addexpense.html">Add Expense</a></li>
+          <li><a href="addcheckpayment.html">Add Check Payment</a></li>
+          <li><a href="scratch.html">Scratch</a></li>
+        </ul>
+      </nav>
+    <main class="container">
+    <h1>Add Expense</h1>
+    <form id = "incomeForm" name ="incomeSource">
+        <div class="mb-3">
+            <label for="place" class = "form-label">Place of expense:</label><br>
+            <input type="text" class = "form-control" id="place" name="place" minlength="5" required><br>
+            
+            <label for="date" class="form-label">Expense Date:</label><br>
+            <input type="date" class="form-control" id="date" name="date"><br>
+            
+            <label for="amount" class = "form-label">Amount:</label><br>
+            <input type="number" class = "form-control" id="amount" name="amount" min="0.01" max='49999.99' step='any' placeholder='0.00'><br>
+            
+            <label for = "category" class = "form-label">Expense Category</label><br>
+                
+                <input type = "radio"  value = "gas">
+                <label for = "gas" class = "form-label">Gas</label>
+                
+                <input type = "radio" value = "groceries">
+                <label for = "groceries" >Groceries</label>
+                
+                <input type = "radio"  value = "business">
+                <label for = "business" class = "form-label">Business</label>
+        </br>
+            <label for="method">Method of Payment:</label><br>
+            <select class = "form-control">
+                <option value="credit">Credit Card</option>
+                <option value="debit">Debit</option>
+                <option value="cash">Cash</option>
+                <option value="direct">Direct Deposit</option>
+            </select><br>
+            <label for="reason" class = "form-label">Reasoning</label><br>
+            <input type="text" class = "form-control" id="reason" name="reason" maxlength="100"><br>
+            <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+    </main>
+</body>
+<script>
+
+function dateValidation(){
+let today = new Date();
+
+
+let expenseDate = new Date(document.getElementById('date').value);
+
+if (expenseDate > today) {
+    alert('Expense date cannot be in the future. Please select a valid date.');
+    return false; 
+    }       
+
+return true;
+}
+
+function submitForm(){
+    if(dateValidation()){
+        console.log("Form submitted");
+    makeRequest();
+    }
+
+    
+}
+
+document.getElementById("incomeForm").addEventListener("submit", function(event){
+    event.preventDefault();
+
+    const formData = new FormData(this);
+
+            fetch('/api/addExpense', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add expense');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data); 
+                alert('Expense added successfully!');
+                this.reset(); 
+            })
+            .catch(error => {
+                console.error('Error adding expense:', error);
+                alert('Failed to add expense');
+            });
+    
+
+
+    submitForm();
+});
+
+function makeRequest() {
+  let url = "https://macpro.csis410.com/submit"; // BASE_URL should be a predefined constant or variable
+  let incomeForm = document.getElementById("incomeForm");
+  let data = new FormData(incomeForm);
+  // Create a new FormData object
+  let params = new FormData();
+  params.append("place", incomeForm); // 'field' and 'value' should be replaced with actual field names and values
+  params.append("date", incomeForm);
+  params.append("amount", incomeForm);
+  params.append("category", incomeForm); // 'field' and 'value' should be replaced with actual field names and values
+  params.append("method", incomeForm);
+  params.append("reason", incomeForm);
+
+
+  // Fetch now with a method of POST and the param data in the body
+  fetch(url, { method: "POST", body: data })
+    .then(statusCheck)
+    .then(response => response.text()) // for text data
+    .then((data) => updateResults(data)) // Handle the data from the response
+    .catch(handleError); // Handle any errors that occur
+}
+
+// These functions need to be defined elsewhere in your code
+function updateResults(data) {
+  // Update the UI with the results
+    console.log("hello");
+    console.log(data);
+}
+
+
+// ********************* Helper Funtions **************************
+/**
+ * Helper function to return the response's result text if successful, otherwise
+ * returns the rejected Promise result with an error status and corresponding text
+ * @param {object} res - response to check for success/error
+ * @return {object} - valid response if response was successful, otherwise rejected
+ *                    Promise result
+ */
+async function statusCheck(res) {
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
+  return res;
+}
+</script>
+
+</html>

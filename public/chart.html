@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <title>my expenses over time</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js" ></script>
+
+</head>
+
+<body>
+
+    <nav>
+        <div class="nav-bar">Expenses</div>
+        <ul class="home-ul">
+          <li><a href="invoices.html">Invoices</a></li>
+          <li><a href="chart.html">Chart</a></li>
+          <li><a href="incomesource.html">Income Source</a></li>
+          <li><a href="addexpense.html">Add Expense</a></li>
+          <li><a href="addcheckpayment.html">Add Check Payment</a></li>
+          <li><a href="scratch.html">Scratch</a></li>
+        </ul>
+      </nav>
+
+  <div class="container">
+    <div class="row">
+      <div class="col">
+
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+  const ctx = document.getElementById('myChart').getContext('2d');
+
+async function fetchExpensesData() {
+    try {
+        const response = await fetch('http://localhost:3100/expenses');
+        if (!response.ok) {
+            throw new Error('Failed to fetch expenses data');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching expenses data:', error);
+        return []; 
+    }
+}
+
+const transactionSummary = simulatedData.reduce((acc, { date, amount, type }) => {
+    if (!acc[date]) {
+        acc[date] = { credit: 0, debit: 0 };
+    }
+    if (type === "Credit") {
+        acc[date].credit += amount;
+    } else {
+        acc[date].debit += amount;
+    }
+    return acc;
+}, {});
+const dates = Object.keys(transactionSummary).sort();
+const credits = dates.map(date => transactionSummary[date].credit);
+const debits = dates.map(date => -transactionSummary[date].debit); 
+
+
+
+
+
+const transactionChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: dates,
+        datasets: [
+            {
+                label: 'Credits',
+                data: credits,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                fill: false,
+            },
+            {
+                label: 'Debits',
+                data: debits,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                fill: false,
+            }
+        ]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + Math.abs(value); 
+                    }
+                }
+            }
+        },
+        tooltips: {
+            callbacks: {
+                label: function(tooltipItem, data) {
+                    let label = data.datasets[tooltipItem.datasetIndex].label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    label += '$' + Math.abs(tooltipItem.yLabel);
+                    return label;
+                }
+            }
+        }
+    }
+});
+
+
+  </script>
+
+</body>
+
+</html>

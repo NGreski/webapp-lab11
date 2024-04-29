@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Expense</title>
+</head>
+<body>
+    <nav>
+        <div class="nav-bar">Expenses</div>
+        <ul class="home-ul">
+          <li><a href="invoices.html">Invoices</a></li>
+          <li><a href="chart.html">Chart</a></li>
+          <li><a href="incomesource.html">Income Source</a></li>
+          <li><a href="addexpense.html">Add Expense</a></li>
+          <li><a href="addcheckpayment.html">Add Check Payment</a></li>
+          <li><a href="scratch.html">Scratch</a></li>
+        </ul>
+      </nav>
+    <h1>Delete Expense</h1>
+    <button onclick="deleteExpense()">Delete Expense</button>
+
+    <script>
+        function deleteExpense() {
+            const expenseId = 'expense_id';
+            fetch(`http://localhost:3100/expenses/${expenseId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Expense deleted successfully");
+                } else {
+                    console.error("Error deleting expense");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice Items Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .invoice-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .invoice-item h2 {
+            margin-top: 0;
+        }
+
+        .invoice-item p {
+            margin: 5px 0;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff4136;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-bar">Expenses</div>
+        <ul class="home-ul">
+          <li><a href="invoices.html">Invoices</a></li>
+          <li><a href="chart.html">Chart</a></li>
+          <li><a href="incomesource.html">Income Source</a></li>
+          <li><a href="addexpense.html">Add Expense</a></li>
+          <li><a href="addcheckpayment.html">Add Check Payment</a></li>
+          <li><a href="scratch.html">Scratch</a></li>
+        </ul>
+      </nav>
+    <div class="container" id="invoice-items-container">
+        <div class="invoice-item">
+            <h2>Static Item</h2>
+            <p>Invoice ID: 100</p>
+            <p>Track ID: 345</p>
+            <p>Unit Price: $free.99</p>
+            <p>Quantity: 1</p>
+            <button class="delete-btn">Delete</button>
+        </div>
+
+    </div>
+
+    <script>
+        function deleteExpense(id) {
+            fetch(`http://localhost:3100/expenses/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Expense deleted successfully");
+                    location.reload();
+                } else {
+                    console.error("Error deleting expense");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+      
+
+       
+
+        function displayInvoiceItems(items) {
+            const container = document.getElementById("invoice-items-container");
+            items.forEach((item) => {
+                const div = document.createElement("div");
+                div.classList.add("invoice-item");
+
+                const h2 = document.createElement("h2");
+                h2.textContent = `Item #${item.InvoiceLineId}`;
+                div.appendChild(h2);
+
+                const p1 = document.createElement("p");
+                p1.textContent = `Invoice ID: ${item.InvoiceId}`;
+                div.appendChild(p1);
+
+                const p2 = document.createElement("p");
+                p2.textContent = `Track ID: ${item.TrackId}`;
+                div.appendChild(p2);
+
+                const p3 = document.createElement("p");
+                p3.textContent = `Unit Price: $${item.UnitPrice}`;
+                div.appendChild(p3);
+
+                const p4 = document.createElement("p");
+                p4.textContent = `Quantity: ${item.Quantity}`;
+                div.appendChild(p4);
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "Delete";
+                deleteBtn.classList.add("delete-btn");
+                deleteBtn.onclick = () => deleteExpense(item.InvoiceLineId);
+                div.appendChild(deleteBtn);
+
+                container.appendChild(div);
+            });
+        }
+
+        function editExpense(expenseId, newData) {
+            fetch(`/expenses/${expenseId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                updateTableRow(expenseId, newData); 
+            })
+            .catch(error => console.error('Error updating the expense:', error));
+        }
+
+        function updateTableRow(expenseId, newData) {
+   
+            const tableRow = document.getElementById(`expense-row-${expenseId}`);
+            if (!tableRow) {
+                console.error(`Expense row with ID ${expenseId} not found.`);
+                return;
+         }
+
+    }
+
+
+        function invoiceItemsData(){
+            fetch('http://localhost:3100/invoice_items')
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                displayInvoiceItems(data);
+
+            });
+        }
+        window.onload = () => displayInvoiceItems(invoiceItemsData());
+    </script>
+</body>
+
+</html>
